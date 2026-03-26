@@ -1,5 +1,5 @@
+import 'dotenv/config';
 import express from 'express';
-import dotenv from 'dotenv';
 import helmet from 'helmet';
 import cors from 'cors';
 import morgan from 'morgan';
@@ -12,7 +12,6 @@ import userRoutes from './routes/userRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 
-dotenv.config();
 const app = express();
 
 // Security and Performance Middleware
@@ -47,4 +46,13 @@ app.use(notFound);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`RE-GEN Server running on port ${PORT}`));
+
+app.get('/', (req, res) => {
+    res.send('RE-GEN Server is running!');
+});
+
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => console.log(`RE-GEN Server running on port ${PORT}`));
+}
+
+export default app;

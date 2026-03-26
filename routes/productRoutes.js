@@ -1,5 +1,5 @@
 import express from 'express';
-import { getProducts, getProductById, getProductsByCategory, addProduct } from '../controllers/ProductController.js';
+import { getProducts, getProductById, getProductsByCategory, addProduct } from '../controllers/productController.js';
 import { protect } from '../middleware/authMiddleware.js';
 import { upload } from '../config/cloudinary.js';
 

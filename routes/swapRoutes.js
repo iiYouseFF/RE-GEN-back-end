@@ -1,6 +1,6 @@
 import express from 'express';
-import { proposeSwap, updateSwapStatus } from '../controllers/swapController.js';
-import { protect } from '../middleware/authMiddleware.js';
+import { proposeSwap, updateSwapStatus, getUserSwaps, getPotentialMatches } from '../controllers/swapController.js';
+import protect from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 

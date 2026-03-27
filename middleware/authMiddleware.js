@@ -1,9 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
-);
+import { supabase } from '../config/supabase.js';
 
 const authenticate = async (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];

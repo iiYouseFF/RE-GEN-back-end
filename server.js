@@ -16,7 +16,13 @@ const app = express();
 
 // Security and Performance Middleware
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+    origin: [
+        'http://localhost:5173',
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true
+}));
 app.use(morgan('dev'));
 app.use(compression());
 

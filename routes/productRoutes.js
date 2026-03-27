@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.get('/' , getProducts);
 router.get('/category/:category' , getProductsByCategory);
-router.get('/id/:id' , getProductById);
+router.get('/:id' , getProductById);
 router.post('/' , protect , upload.single('image'), addProduct);
 
 export default router;

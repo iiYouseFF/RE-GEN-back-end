@@ -1,34 +1,26 @@
-import { supabase } from "../config/supabase.js";
+import { createClient } from '@supabase/supabase-js';
 
-export const protect = async ( req , res , next ) =>{
-    let token;
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
+);
 
-    if(req.headers.authorization && req.headers.authorization.startsWith('Bearer')){
-        try{
-            token = req.headers.authorization.split(' ')[1];
-            const { data: { user }, error} = await supabase.auth.getUser(token);
+const authenticate = async (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1];
 
-            if(error || !user){
-                return res.status(401).json({
-                    success: false,
-                    message: 'Not Authorized'
-                });
-            }
-            req.user = user;
-            next();
-        }
-        catch(error){
-            console.error('Error Verifying Token' , error);
-            return res.status(401).json({
-                success: false,
-                message: 'Not Authorized'
-            });
-        }
-    }
-    if (!token){
-        res.status(401).json({
-            success: false,
-            message: 'Not authorized, no token provided'
-        });
-    };
+  if (!token) {
+    return res.status(401).json({ error: 'Protocol Violation: No Token Provided' });
+  }
+
+  // Verify the JWT with Supabase
+  const { data: { user }, error } = await supabase.auth.getUser(token);
+
+  if (error || !user) {
+    return res.status(401).json({ error: 'Protocol Violation: Invalid Session' });
+  }
+
+  // Attach user to request for use in routes
+  req.user = user;
+  next();
 };
+export default authenticate;

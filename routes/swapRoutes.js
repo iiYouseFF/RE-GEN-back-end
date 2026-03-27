@@ -4,6 +4,8 @@ import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
+router.get('/my-swaps' , protect , getUserSwaps);
+router.get('/matches' , protect , getPotentialMatches);
 router.post('/' , protect , proposeSwap);
 router.put('/:id' , protect , updateSwapStatus);
 

@@ -3,12 +3,14 @@ import { calculateCarbonSaved, getEcoFriendlyComparison } from "../utils/ecoCalc
 
 export const getUserProfile = async ( req , res ) =>{
     try {
-        const {data:user, error } = await supabase.auth.getUser(req.headers.authorization);
-        if(error) throw error;
-        return res.status(200).json(user);
+        // user is already attached to req by the protect middleware
+        if (!req.user) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
+        return res.status(200).json(req.user);
     } catch (error) {
-        console.error('Error Fetching User Profile');
-        return res.status(500).json({error: 'Failed to fetch user profile', error});
+        console.error('Error Fetching User Profile', error);
+        return res.status(500).json({error: 'Failed to fetch user profile'});
     }
 }
 

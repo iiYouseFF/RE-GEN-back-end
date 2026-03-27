@@ -3,9 +3,17 @@ import { supabase } from "../config/supabase.js";
 export const getProducts = async( req , res ) =>{
     try {
         const { data, error } = await supabase.from('products')
-        .select('*')
+        .select('*, categories(name)')
         if (error) throw error;
-        return res.status(200).json(data);
+
+        // Map data to match frontend expectations if necessary
+        const products = data.map(p => ({
+            ...p,
+            category: p.categories?.name,
+            is_swap: p.is_swap_eligible
+        }));
+
+        return res.status(200).json(products);
     } catch (error) {
         console.error("Error fetching products:", error);
         return res.status(500).json({ error: "Failed to fetch products" });
@@ -16,22 +24,29 @@ export const getProductById = async( req , res ) =>{
     try {
         const { id } = req.params;
 
-        // Verify if the ID matches a UUID format to prevent database syntax errors
+        // Verify if the ID matches a UUID format
         const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
         if (!uuidRegex.test(id)) {
             return res.status(400).json({ error: "Invalid product ID format. Expected a UUID." });
         }
 
         const { data, error } = await supabase.from('products')
-        .select('*')
+        .select('*, categories(name)')
         .eq('id', id)
         .single();
         if(error) throw error;
-        return res.status(200).json(data);
+
+        const product = {
+            ...data,
+            category: data.categories?.name,
+            is_swap: data.is_swap_eligible
+        };
+
+        return res.status(200).json(product);
     }
     catch(error){
-        console.error('Error Fetching This Product');
-        return res.status(500).json({error: 'Failed to fetch product', error});
+        console.error('Error Fetching This Product', error);
+        return res.status(500).json({error: 'Failed to fetch product'});
     }
 }
 
@@ -39,14 +54,22 @@ export const getProductsByCategory = async( req , res ) =>{
     try{
         const { category } = req.params;
         const { data, error } = await supabase.from('products')
-        .select('*')
-        .eq('category', category)
+        .select('*, categories!inner(name)')
+        .eq('categories.name', category)
+        
         if(error) throw error;
-        return res.status(200).json(data);
+
+        const products = data.map(p => ({
+            ...p,
+            category: p.categories?.name,
+            is_swap: p.is_swap_eligible
+        }));
+
+        return res.status(200).json(products);
     }
     catch(error){
-        console.error('Error Fetching This Product');
-        return res.status(500).json({error: 'Failed to fetch product', error});
+        console.error('Error Fetching Products By Category', error);
+        return res.status(500).json({error: 'Failed to fetch products by category'});
     }
 }
 

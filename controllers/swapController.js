@@ -1,7 +1,8 @@
 import { supabase } from "../config/supabase.js";
 
 export const proposeSwap = async ( req , res ) => {
-    const {proposerId, receiverId, offeredItemId, requestedItemId} = req.body;
+    const { offeredItemId, requestedItemId } = req.body;
+    const proposerId = req.user.id;
 
     try{
         const { data, error } = await supabase.from('swaps').insert([
@@ -16,8 +17,69 @@ export const proposeSwap = async ( req , res ) => {
         return res.status(201).json(data);
     }
     catch(error){
-        console.error('Error Proposing Swap');
-        return res.status(500).json({error: 'Failed to propose swap', error}); 
+        console.error('Error Proposing Swap', error);
+        return res.status(500).json({error: 'Failed to propose swap'}); 
+    }
+}
+
+export const getUserSwaps = async (req, res) => {
+    const userId = req.user.id;
+    try {
+        const { data, error } = await supabase.from('swaps')
+            .select(`
+                *,
+                offered_item:offered_item_id(*),
+                desired_item:desired_item_id(*)
+            `)
+            .eq('user_id', userId);
+        
+        if (error) throw error;
+        return res.status(200).json(data);
+    } catch (error) {
+        console.error('Error Fetching User Swaps', error);
+        return res.status(500).json({ error: 'Failed to fetch user swaps' });
+    }
+}
+
+export const getPotentialMatches = async (req, res) => {
+    const userId = req.user.id;
+    try {
+        // Find swaps where others want what this user has offered,
+        // or where others are offering what this user wants.
+        
+        // 1. Get user's own active swaps
+        const { data: mySwaps, error: mySwapsError } = await supabase.from('swaps')
+            .select('offered_item_id, desired_item_id')
+            .eq('user_id', userId)
+            .eq('status', 'pending');
+            
+        if (mySwapsError) throw mySwapsError;
+        
+        if (mySwaps.length === 0) {
+            return res.status(200).json([]);
+        }
+
+        const myOfferedIds = mySwaps.map(s => s.offered_item_id);
+        const myDesiredIds = mySwaps.map(s => s.desired_item_id);
+
+        // 2. Find other users' swaps that match
+        const { data: matches, error: matchError } = await supabase.from('swaps')
+            .select(`
+                *,
+                user:user_id(id),
+                offered_item:offered_item_id(*),
+                desired_item:desired_item_id(*)
+            `)
+            .neq('user_id', userId)
+            .eq('status', 'pending')
+            .or(`offered_item_id.in.(${myDesiredIds.join(',')}),desired_item_id.in.(${myOfferedIds.join(',')})`);
+
+        if (matchError) throw matchError;
+
+        return res.status(200).json(matches);
+    } catch (error) {
+        console.error('Error Fetching Potential Matches', error);
+        return res.status(500).json({ error: 'Failed to fetch potential matches' });
     }
 }
 

@@ -106,3 +106,25 @@ export const addProduct = async ( req , res ) =>{
         return res.status(500).json({ error: 'Failed to add product', details: error.message || error });
     }
 }
+
+export const getMyProducts = async( req , res ) =>{
+    try {
+        const userId = req.user.id;
+        const { data, error } = await supabase.from('products')
+        .select('*, categories(name)')
+        .eq('owner_id', userId);
+        
+        if (error) throw error;
+
+        const products = data.map(p => ({
+            ...p,
+            category: p.categories?.name,
+            is_swap: p.is_swap_eligible
+        }));
+
+        return res.status(200).json(products);
+    } catch (error) {
+        console.error("Error fetching my products:", error);
+        return res.status(500).json({ error: "Failed to fetch your products" });
+    }
+}

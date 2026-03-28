@@ -1,11 +1,16 @@
 import { supabase } from "../config/supabase.js";
 
 export const register = async ( req , res ) =>{
-    const { email , password } = req.body;
+    const { email , password, display_name } = req.body;
     try{
         const { data: user, error } = await supabase.auth.signUp({
             email,
-            password
+            password,
+            options: {
+                data: {
+                    display_name: display_name
+                }
+            }
         });
         if(error) throw error;
         return res.status(201).json(user);

@@ -11,6 +11,7 @@ const authenticate = async (req, res, next) => {
   const { data: { user }, error } = await supabase.auth.getUser(token);
 
   if (error || !user) {
+    console.error(`[AUTH] Protocol Violation: Unauthorized. Token possibly expired or invalid.`);
     return res.status(401).json({ error: 'Protocol Violation: Invalid Session' });
   }
 
@@ -32,7 +33,11 @@ export const adminOnly = async (req, res, next) => {
     .single();
 
   if (error || profile?.role !== 'admin') {
-    return res.status(403).json({ error: 'Access Denied: Administrative Clearance Required' });
+    console.warn(`[SECURITY] Access Denied for User ID: ${req.user.id}. Role: ${profile?.role || 'NotFound'}. Admin Clearance required.`);
+    return res.status(403).json({ 
+        error: 'Access Denied: Administrative Clearance Required',
+        message: `Your current role (${profile?.role || 'standard'}) does not have permission to access this internal node.`
+    });
   }
 
   next();

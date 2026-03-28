@@ -64,3 +64,30 @@ export const getEcoStats = async ( req , res ) =>{
         });
     }
 }
+
+export const updateProfile = async ( req , res ) =>{
+    const userId = req.user.id;
+    const { display_name } = req.body;
+    try{
+        const { data, error } = await supabase.from('users').update({ display_name }).eq('id', userId).select().single();
+        if(error) throw error;
+        return res.status(200).json(data);
+    }
+    catch(error){
+        console.error('Error Updating Profile', error);
+        return res.status(500).json({error: 'Failed to update profile'});
+    }
+}
+
+export const deleteProfile = async ( req , res ) =>{
+    const userId = req.user.id;
+    try{
+        const { error } = await supabase.auth.admin.deleteUser(userId);
+        if(error) throw error;
+        return res.status(200).json({message: 'Profile deleted successfully'});
+    }
+    catch(error){
+        console.error('Error Deleting Profile', error);
+        return res.status(500).json({error: 'Failed to delete profile'});
+    }
+}

@@ -16,8 +16,8 @@ export const register = async ( req , res ) =>{
         return res.status(201).json(user);
     }
     catch(error){
-        console.error('Error Registering User');
-        return res.status(500).json({error: 'Failed to register user', error});
+        console.error('Error Registering User', error);
+        return res.status(500).json({ error: 'Failed to register user', details: error.message });
     }
 }
 
@@ -32,7 +32,7 @@ export const login = async ( req , res ) =>{
         return res.status(200).json(user);
     }
     catch(error){
-        console.error('Error Logging In');
-        return res.status(500).json({error: 'Failed to log in', error});
+        console.error('Error Logging In', error);
+        return res.status(500).json({ error: 'Failed to log in', details: error.message });
     }
 }

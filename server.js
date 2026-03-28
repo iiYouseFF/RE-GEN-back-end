@@ -16,14 +16,20 @@ const app = express();
 
 // Security and Performance Middleware
 app.use(helmet());
+
+// CORS — driven by env var; falls back to localhost for local development
+const allowedOrigins = process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
+    : ['http://localhost:5173'];
+
 app.use(cors({
-    origin: [
-        'http://localhost:5173',
-    ],
+    origin: allowedOrigins,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
 }));
-app.use(morgan('dev'));
+
+// Use 'combined' (Apache-style) in production for log aggregators, 'dev' locally
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.use(compression());
 
 // Body parser with size limit to prevent large payload attacks
@@ -41,6 +47,20 @@ const limiter = rateLimit({
 // Apply rate limiter to all /api routes
 app.use('/api', limiter);
 
+// Health checks
+app.get('/', (req, res) => {
+    res.json({ success: true, message: 'RE-GEN Server is running!' });
+});
+
+app.get('/health', (req, res) => {
+    res.status(200).json({
+        status: 'ok',
+        uptime: process.uptime(),
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV || 'development'
+    });
+});
+
 // Route Links
 app.use('/api/products', productRoutes);
 app.use('/api/swaps', swapRoutes);
@@ -52,10 +72,6 @@ app.use(notFound);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
-
-app.get('/', (req, res) => {
-    res.send('RE-GEN Server is running!');
-});
 
 if (process.env.NODE_ENV !== 'production') {
     app.listen(PORT, () => console.log(`RE-GEN Server running on port ${PORT}`));

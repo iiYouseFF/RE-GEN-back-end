@@ -10,6 +10,7 @@ import productRoutes from './routes/productRoutes.js';
 import swapRoutes from './routes/swapRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import authRoutes from './routes/authRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 
 const app = express();
@@ -66,6 +67,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/swaps', swapRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Error Handling
 app.use(notFound);

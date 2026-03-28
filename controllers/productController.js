@@ -127,4 +127,15 @@ export const getMyProducts = async( req , res ) =>{
         console.error("Error fetching my products:", error);
         return res.status(500).json({ error: "Failed to fetch your products" });
     }
-}
+};
+
+export const getCategories = async (req, res) => {
+    try {
+        const { data, error } = await supabase.from('categories').select('*');
+        if (error) throw error;
+        return res.status(200).json(data);
+    } catch (error) {
+        console.error('Error fetching categories:', error);
+        return res.status(500).json({ error: 'Failed to fetch categories' });
+    }
+};

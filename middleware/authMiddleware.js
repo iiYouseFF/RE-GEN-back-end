@@ -18,4 +18,24 @@ const authenticate = async (req, res, next) => {
   req.user = user;
   next();
 };
+
+export const adminOnly = async (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({ error: 'Auth Required' });
+  }
+
+  // Check the role in the profiles table
+  const { data: profile, error } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', req.user.id)
+    .single();
+
+  if (error || profile?.role !== 'admin') {
+    return res.status(403).json({ error: 'Access Denied: Administrative Clearance Required' });
+  }
+
+  next();
+};
+
 export default authenticate;

@@ -67,9 +67,9 @@ export const getEcoStats = async ( req , res ) =>{
 
 export const updateProfile = async ( req , res ) =>{
     const userId = req.user.id;
-    const { display_name } = req.body;
+    const { full_name } = req.body;
     try{
-        const { data, error } = await supabase.from('users').update({ display_name }).eq('id', userId).select().single();
+        const { data, error } = await supabase.from('profiles').update({ full_name }).eq('id', userId).select().single();
         if(error) throw error;
         return res.status(200).json(data);
     }

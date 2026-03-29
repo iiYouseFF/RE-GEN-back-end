@@ -130,6 +130,42 @@ export const getAllUsers = async (req, res) => {
     }
 };
 
+export const toggleUserRole = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Fetch current role
+        const { data: user, error: fetchError } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', id)
+            .single();
+
+        if (fetchError) throw fetchError;
+
+        // Toggle logic
+        const newRole = user.role === 'admin' ? 'user' : 'admin';
+
+        // Update role
+        const { data: updatedUser, error: updateError } = await supabase
+            .from('profiles')
+            .update({ role: newRole })
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (updateError) throw updateError;
+        
+        return res.status(200).json(updatedUser);
+    } catch (error) {
+        console.error("[ADMIN_API] Toggle Role Error:", error);
+        return res.status(500).json({ 
+            error: "Failed to alter operator clearance", 
+            details: error.message 
+        });
+    }
+};
+
 export const getPlatformStats = async (req, res) => {
     try {
         const [products, users, swaps] = await Promise.all([

@@ -41,6 +41,32 @@ export const getUserSwaps = async (req, res) => {
     }
 }
 
+export const getIncomingSwaps = async (req, res) => {
+    const userId = req.user.id;
+    try {
+        const { data: myProducts, error: prodError } = await supabase.from('products').select('id').eq('owner_id', userId);
+        if (prodError) throw prodError;
+        if (myProducts.length === 0) return res.status(200).json([]);
+
+        const myProductIds = myProducts.map(p => p.id);
+
+        const { data, error } = await supabase.from('swaps')
+            .select(`
+                *,
+                offered_item:offered_item_id(*),
+                desired_item:desired_item_id(*)
+            `)
+            .in('desired_item_id', myProductIds);
+        
+        if (error) throw error;
+        return res.status(200).json(data);
+    } catch (error) {
+        console.error('Error Fetching Incoming Swaps', error);
+        return res.status(500).json({ error: 'Failed to fetch incoming swaps' });
+    }
+}
+
+
 export const getPotentialMatches = async (req, res) => {
     const userId = req.user.id;
     try {

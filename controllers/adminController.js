@@ -112,6 +112,24 @@ export const getAllOrders = async (req, res) => {
     }
 };
 
+export const getAllUsers = async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        return res.status(200).json(data);
+    } catch (error) {
+        console.error("[ADMIN_API] Fetch Users Error:", error);
+        return res.status(500).json({ 
+            error: "Failed to retrieve user directory", 
+            details: error.message 
+        });
+    }
+};
+
 export const getPlatformStats = async (req, res) => {
     try {
         const [products, users, swaps] = await Promise.all([

@@ -75,7 +75,7 @@ export const getProductsByCategory = async( req , res ) =>{
 
 export const addProduct = async ( req , res ) =>{
     try{
-        const {name, description, price, categoryId, stockQuantity, ecoScore, isSwapable} = req.body;
+        const {name, description, price, categoryId, stockQuantity, ecoScore, isSwapable, healthScore, quality} = req.body;
         // Verify req.file exists before attempting to read its path
         const image_url = req.file ? req.file.path : 'default_placeholder_url';
         
@@ -90,6 +90,8 @@ export const addProduct = async ( req , res ) =>{
                 category_id: categoryId,
                 stock_quantity: stockQuantity,
                 eco_score: ecoScore,
+                health_score: healthScore,
+                quality,
                 image_url: image_url,
                 is_swap_eligible: isSwapable,
                 owner_id: req.user.id

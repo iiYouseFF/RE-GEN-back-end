@@ -127,16 +127,24 @@ export const updateSwapStatus = async ( req , res ) => {
             const { data: desiredItem } = await supabase.from('products').select('stock_quantity').eq('id', swap.desired_item_id).single();
 
             if (offeredItem) {
+                const newQty = Math.max(0, offeredItem.stock_quantity - 1);
+                const updates = { stock_quantity: newQty };
+                if (newQty === 0) updates.status = 'sold';
+                
                 await supabase
                 .from('products')
-                .update({ stock_quantity: Math.max(0, offeredItem.stock_quantity - 1) })
+                .update(updates)
                 .eq('id', swap.offered_item_id);
             }
 
             if (desiredItem) {
+                const newQty = Math.max(0, desiredItem.stock_quantity - 1);
+                const updates = { stock_quantity: newQty };
+                if (newQty === 0) updates.status = 'sold';
+
                 await supabase
                 .from('products')
-                .update({ stock_quantity: Math.max(0, desiredItem.stock_quantity - 1) })
+                .update(updates)
                 .eq('id', swap.desired_item_id);
             }
         }

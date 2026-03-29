@@ -1,5 +1,5 @@
 import express from 'express';
-import { getCategories, createCategory, deleteCategory, getPendingProducts, moderateProduct, getAllOrders, getPlatformStats } from '../controllers/adminController.js';
+import { getCategories, createCategory, deleteCategory, getPendingProducts, moderateProduct, getAllOrders, getPlatformStats, getAllUsers } from '../controllers/adminController.js';
 import authenticate, { adminOnly } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -14,5 +14,6 @@ router.delete('/categories/:id', deleteCategory);
 router.get('/moderation', getPendingProducts);
 router.put('/moderation/:id', moderateProduct);
 router.get('/orders', getAllOrders);
+router.get('/users', getAllUsers);
 
 export default router;

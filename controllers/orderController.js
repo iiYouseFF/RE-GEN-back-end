@@ -57,9 +57,13 @@ export const createOrder = async (req, res) => {
                 .single();
 
             if (product) {
+                const newQty = Math.max(0, product.stock_quantity - 1);
+                const updates = { stock_quantity: newQty };
+                if (newQty === 0) updates.status = 'sold';
+
                 await supabase
                     .from('products')
-                    .update({ stock_quantity: Math.max(0, product.stock_quantity - 1) })
+                    .update(updates)
                     .eq('id', item.id);
             }
         }

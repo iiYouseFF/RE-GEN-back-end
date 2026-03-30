@@ -27,7 +27,7 @@ CREATE TABLE swaps (
   user_id UUID REFERENCES auth.users(id),
   offered_item_id UUID REFERENCES products(id),
   desired_item_id UUID REFERENCES products(id),
-  status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'rejected', 'completed')),
+  status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'rejected', 'shipped', 'completed')),
   shipping_status TEXT DEFAULT 'pending' CHECK (shipping_status IN ('pending', 'shipped', 'in_transit', 'delivered')),
   delivery_status TEXT DEFAULT 'pending' CHECK (delivery_status IN ('pending', 'processing', 'completed', 'failed')),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()

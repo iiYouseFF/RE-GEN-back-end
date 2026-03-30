@@ -111,7 +111,7 @@ export const getPotentialMatches = async (req, res) => {
 
 export const updateSwapStatus = async ( req , res ) => {
     const { id } = req.params;
-    const { status } = req.body;
+    const { status, shipping_status, delivery_status } = req.body;
     try{
         const {data: swap, error: findError } = await supabase.from('swaps')
         .select('*')
@@ -149,9 +149,14 @@ export const updateSwapStatus = async ( req , res ) => {
             }
         }
 
+        const dynamicUpdates = {};
+        if (status) dynamicUpdates.status = status;
+        if (shipping_status) dynamicUpdates.shipping_status = shipping_status;
+        if (delivery_status) dynamicUpdates.delivery_status = delivery_status;
+
         const { data: updatedSwap, error: updateError } = await supabase
         .from('swaps')
-        .update({ status })
+        .update(dynamicUpdates)
         .eq('id', id)
         .select()
         .single();

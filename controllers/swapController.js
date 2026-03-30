@@ -159,12 +159,13 @@ export const updateSwapStatus = async ( req , res ) => {
         if(updateError) throw updateError;
 
         return res.status(200).json({ success: true, message: `Swap status updated successfully to ${status}`, swap: updatedSwap });
-    }
-    catch(error){
-        res.status(500).json({
+    } catch(error) {
+        console.error("SWAP_UPDATE_CRASH:", error);
+        return res.status(500).json({
             success: false,
             message: "Failed to update swap status",
-            error: error.message
+            error: error.message || error,
+            details: JSON.stringify(error)
         });
     }
 }
